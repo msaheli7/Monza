@@ -1,51 +1,49 @@
-```yaml
 name: Build APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y zip unzip openjdk-17-jdk
-        pip install --upgrade pip
-        pip install buildozer cython
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip unzip openjdk-17-jdk wget
+          pip install --upgrade pip
+          pip install buildozer cython
 
-    - name: Install Android SDK
-      run: |
-        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
-        mkdir -p $HOME/android-sdk/cmdline-tools
-        unzip -q sdk-tools.zip -d $HOME/android-sdk/cmdline-tools
-        mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
-        echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
-        echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
-        source $GITHUB_ENV
+      - name: Install Android SDK
+        run: |
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O sdk-tools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip -q sdk-tools.zip -d $HOME/android-sdk/cmdline-tools
+          mv $HOME/android-sdk/cmdline-tools/cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "PATH=$HOME/android-sdk/cmdline-tools/latest/bin:$HOME/android-sdk/platform-tools:$PATH" >> $GITHUB_ENV
 
-    - name: Accept Android SDK Licenses
-      run: yes | sdkmanager --licenses
+      - name: Accept Android SDK Licenses
+        run: yes | sdkmanager --licenses
 
-    - name: Install Android build-tools
-      run: sdkmanager "build-tools;33.0.2" "platforms;android-33"
+      - name: Install Android build-tools
+        run: sdkmanager "build-tools;33.0.2" "platforms;android-33"
 
-    - name: Build APK
-      run: buildozer android debug
+      - name: Build APK
+        run: buildozer android debug
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: Monza-APK
-        path: bin/*.apk
-```
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Monza-APK
+          path: bin/*.apk
